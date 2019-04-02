@@ -1,0 +1,29 @@
+---
+title: "Cadmium pollution map of Maas river near town of Stein"
+author: "Evgeny Gorelov"
+date: "4/2/2019"
+output: html_document
+---
+Data source: R **sp** package.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+library(leaflet)
+library(rgdal)
+library(sp)
+library(dplyr)
+demo(meuse, ask = FALSE, echo = FALSE)
+crs.longlat = CRS("+init=epsg:4326")
+meuse.longlat = spTransform(meuse, crs.longlat)
+
+maasDFcad<-data.frame(meuse.longlat@data$cadmium, meuse.longlat@coords)
+names(maasDFcad)<-c("Cadmium level", "lng", "lat")
+
+SteinDF<-data.frame(lat=50.966667, lng=5.766667)
+
+my_map<-maasDFcad %>% leaflet() %>% addTiles() %>% addCircles(weight=1, radius=sqrt(maasDFcad$`Cadmium level`*2000))
+addMarkers(my_map, lng=SteinDF$lng, lat=SteinDF$lat, popup="Stein")
+```
+
